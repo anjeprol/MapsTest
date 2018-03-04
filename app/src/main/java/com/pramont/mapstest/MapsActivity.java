@@ -1,6 +1,5 @@
 package com.pramont.mapstest;
 
-import android.*;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -12,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,8 +24,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LocationManager mLocationManager;
-    private LocationListener mLocationlistener;
+    private LocationListener mLocationListener;
     private static LatLng myLocation;
+    private static boolean isFirstTime = true;
 
 
     @Override
@@ -42,15 +42,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Initializing the location service
         myLocation = new LatLng(60, 151);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        mLocationlistener = new LocationListener() {
+        mLocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                //LatLng sydney = new LatLng(-34, 151);
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,18));
-              //  mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,10));
+                Log.d("location:", ""+location.getLatitude()+location.getLongitude());
+               // mMap.clear();
+                if(isFirstTime)
+                {
+                    mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17));
+                    //  mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,10));
+                    isFirstTime = false;
+                }
+                else
+                {
+                    mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
+                }
             }
 
             @Override
@@ -101,7 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         //noinspection MissingPermission
-        mLocationManager.requestLocationUpdates("gps", 5000, 0, mLocationlistener);
+        mLocationManager.requestLocationUpdates("gps", 5000, 0, mLocationListener);
     }
 
     @Override
